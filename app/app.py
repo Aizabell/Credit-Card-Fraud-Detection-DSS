@@ -67,8 +67,12 @@ def manager():
     if session.get('role') != 'high':
         return abort(403)
 
-    if not os.path.exists('predictions.csv'):
-        return "No prediction data available yet."
+    if not os.path.exists('predictions.csv') or os.stat('predictions.csv').st_size == 0:
+        # Show dashboard with a placeholder message
+        return render_template(
+            'manager.html',
+            # data="<p class='text-center text-muted'>No prediction data available yet.</p>"
+        )
 
     df = pd.read_csv('predictions.csv')
     return render_template('manager.html', data=df.to_html(classes="table table-bordered", index=False))

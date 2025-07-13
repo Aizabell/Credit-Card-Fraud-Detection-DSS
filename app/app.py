@@ -1,19 +1,78 @@
 from flask import Flask, render_template, request, redirect, session, abort
 import pandas as pd
-import random
 import os
+from joblib import load
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'  # Used to manage session data
+app.secret_key = 'your-secret-key'
 
-# User login data with roles (username = password)
+# -------------------
+# In-memory prediction history
+# -------------------
+history_records = []
+
+# -------------------
+# User Credentials
+# -------------------
 users = {
     'employee': {'password': 'employee', 'role': 'low'},
     'ceo': {'password': 'ceo', 'role': 'high'}
 }
 
 # -------------------
-# Login Route
+# Dropdown Data
+# -------------------
+merchant_list = [
+    'fraud_Kilback LLC', 'fraud_Cormier LLC', 'fraud_Schumm PLC', 'fraud_Kuhn LLC', 'fraud_Boyer PLC',
+    'fraud_Dickinson Ltd', 'fraud_Cummerata-Jones', 'fraud_Kutch LLC', 'fraud_Olson, Becker and Koch',
+    'fraud_Stroman, Hudson and Erdman', 'fraud_Rodriguez Group', 'fraud_Erdman-Kertzmann',
+    'fraud_Jenkins, Hauck and Friesen', 'fraud_Kling Inc', 'fraud_Connelly, Reichert and Fritsch',
+    'fraud_Friesen-Stamm', 'fraud_Prohaska-Murray', 'fraud_Huels-Hahn', 'fraud_Berge LLC',
+    'fraud_Bartoletti-Wunsch', 'fraud_Christiansen, Goyette and Schamberger', 'fraud_Corwin-Collins',
+    'fraud_Eichmann, Bogan and Rodriguez', 'fraud_Greenholt, Jacobi and Gleason', 'fraud_Bins-Rice',
+    'fraud_Brekke and Sons', 'fraud_Schmitt Inc', 'fraud_Mraz-Herzog',
+    'fraud_Tillman, Dickinson and Labadie', 'fraud_Kuvalis Ltd'
+]
+
+category_label_map = {
+    "Miscellaneous (Online)": "misc_net",
+    "Grocery (POS)": "grocery_pos",
+    "Entertainment": "entertainment",
+    "Gas & Transport": "gas_transport",
+    "Miscellaneous (POS)": "misc_pos",
+    "Grocery (Online)": "grocery_net",
+    "Shopping (Online)": "shopping_net",
+    "Shopping (POS)": "shopping_pos",
+    "Food & Dining": "food_dining",
+    "Personal Care": "personal_care",
+    "Health & Fitness": "health_fitness",
+    "Travel": "travel",
+    "Kids & Pets": "kids_pets",
+    "Home": "home"
+}
+
+# -------------------
+# Time Group Function
+# -------------------
+def get_time_group_from_time(timestr):
+    hour = int(timestr.split(":")[0])
+    if 0 <= hour < 5:
+        return 'Midnight'
+    elif 5 <= hour < 8:
+        return 'Early Morning'
+    elif 8 <= hour < 12:
+        return 'Morning'
+    elif 12 <= hour < 14:
+        return 'Noon'
+    elif 14 <= hour < 17:
+        return 'Afternoon'
+    elif 17 <= hour < 20:
+        return 'Evening'
+    else:
+        return 'Night'
+
+# -------------------
+# Routes
 # -------------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -30,63 +89,93 @@ def login():
             return "Invalid credentials"
     return render_template('login.html')
 
-# -------------------
-# Operator Panel - Prediction
-# -------------------
+
 @app.route('/operator', methods=['GET', 'POST'])
 def operator():
     if session.get('role') != 'low':
         return abort(403)
 
     result = None
+    probability = None
+
     if request.method == 'POST':
-        # Read form data
+        model = load('../model_saved/xgb_model.joblib')
+        scaler = load('../model_saved/scaler.joblib')
+        encoders = load('../model_saved/encoders.joblib')
+
+        # Inputs
         amount = float(request.form['amount'])
-        category = request.form['category']
-        gender = request.form['gender']
+        category_label = request.form['category']
+        category = category_label_map.get(category_label, "")
+        distance = float(request.form['distance'])
+        age = int(request.form['age'])
+        transaction_time = request.form['transaction_time']
+        merchant = request.form['merchant']
 
-        # ⛔ Dummy model logic (replace later with actual model)
-        prediction = random.choice([0, 1])
+        time_group = get_time_group_from_time(transaction_time)
 
-        # Log prediction
-        input_df = pd.DataFrame([[amount, category, gender, prediction]],
-                                columns=['amount', 'category', 'gender', 'prediction'])
+        input_df = pd.DataFrame([{
+            'merchant': merchant,
+            'amt': amount,
+            'distance_km': distance,
+            'category': category,
+            'age': age,
+            'time_group': time_group
+        }])
 
-        file_exists = os.path.exists('predictions.csv')
-        input_df.to_csv('predictions.csv', mode='a', header=not file_exists, index=False)
+        for col in ['merchant', 'category', 'time_group']:
+            input_df[col] = encoders[col].transform(input_df[col])
+
+        X_scaled = scaler.transform(input_df)
+        proba = model.predict_proba(X_scaled)[0][1]
+        prediction = int(proba >= 0.625)
 
         result = "Fraud" if prediction == 1 else "Not Fraud"
+        probability = round(proba * 100, 2)
 
-    return render_template('operator.html', result=result)
+        history_records.append({
+            'Merchant': merchant,
+            'Amount': amount,
+            'Distance': distance,
+            'Category': category_label,
+            'Age': age,
+            'Time Group': time_group,
+            'Result': result,
+            'Confidence': probability,
+            'Operator': session.get('username'),
+            'terminated': False
+        })
 
-# -------------------
-# Manager Panel - Dashboard
-# -------------------
+    return render_template(
+        'operator.html',
+        result=result,
+        confidence=probability,
+        history=history_records,
+        merchants=merchant_list,
+        categories=category_label_map
+    )
+
+
+@app.route('/mark_terminated/<int:row_index>')
+def mark_terminated(row_index):
+    if 0 <= row_index < len(history_records):
+        history_records[row_index]['terminated'] = True
+        return '', 204
+    return 'Invalid Index', 400
+
+
 @app.route('/manager')
 def manager():
     if session.get('role') != 'high':
         return abort(403)
+    return render_template('manager.html', data="<p class='text-center text-muted'>Tableau Dashboard Embedded Here</p>")
 
-    if not os.path.exists('predictions.csv') or os.stat('predictions.csv').st_size == 0:
-        # Show dashboard with a placeholder message
-        return render_template(
-            'manager.html',
-            # data="<p class='text-center text-muted'>No prediction data available yet.</p>"
-        )
 
-    df = pd.read_csv('predictions.csv')
-    return render_template('manager.html', data=df.to_html(classes="table table-bordered", index=False))
-
-# -------------------
-# Logout
-# -------------------
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
-# -------------------
-# App Runner
-# -------------------
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     app.run(debug=True)

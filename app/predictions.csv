@@ -1,0 +1,3 @@
+merchant,amount,distance,category,age,time_group,result,confidence,operator
+fraud_Kirlin and Sons,10000.0,5.0,misc_net,50,Night,Not Fraud,30.28,employee
+fraud_Kirlin and Sons,10000.0,5.0,misc_net,50,Night,Not Fraud,30.28,employee

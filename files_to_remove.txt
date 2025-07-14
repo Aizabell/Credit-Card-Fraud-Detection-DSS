@@ -1,0 +1,21 @@
+# Folders
+data/
+dataset/
+related_papers/
+idea/
+report/
+slide/
+dashboard/
+
+# Large file types from LFS history
+*.csv
+*.zip
+
+# Specific files
+model/source_code.ipynb
+model/source_code_2.ipynb
+model/source_code_3.ipynb
+model/source_code_2_old.ipynb
+model/source_code_2_neo.ipynb
+model/source_code_2_neo copy.py
+model/BIA Proj.ipynb

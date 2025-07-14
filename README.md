@@ -179,6 +179,6 @@ The application will be running at `http://127.0.0.1:5000`.
 
 ## Example of website UI
 
-![Dashboard section](Screenshot_2025-07-13_at_11.31.26_PM.png)
+![Dashboard section](./figure/Screenshot_2025-07-13_at_11.31.26_PM.png)
 
-![User input & result section](Screenshot_2025-07-13_at_11.34.29_PM.png)
+![User input & result section](.figure/Screenshot_2025-07-13_at_11.34.29_PM.png)

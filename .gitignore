@@ -16,4 +16,6 @@ report/CPFinal-Doc.docx
 slide/
 dataset/
 
-
+# Data files
+*.csv
+*.zip

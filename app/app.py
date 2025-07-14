@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, abort
 import pandas as pd
 <<<<<<< HEAD
+<<<<<<< HEAD
 import random
 import os
 
@@ -9,6 +10,8 @@ app.secret_key = 'your-secret-key'  # Used to manage session data
 
 # User login data with roles (username = password)
 =======
+=======
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 import os
 from joblib import load
 
@@ -23,6 +26,9 @@ history_records = []
 # -------------------
 # User Credentials
 # -------------------
+<<<<<<< HEAD
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
+=======
 >>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 users = {
     'employee': {'password': 'employee', 'role': 'low'},
@@ -31,8 +37,11 @@ users = {
 
 # -------------------
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Login Route
 =======
+=======
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 # Dropdown Data
 # -------------------
 merchant_list = [
@@ -86,6 +95,9 @@ def get_time_group_from_time(timestr):
 
 # -------------------
 # Routes
+<<<<<<< HEAD
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
+=======
 >>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 # -------------------
 @app.route('/', methods=['GET', 'POST'])
@@ -104,9 +116,13 @@ def login():
     return render_template('login.html')
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # -------------------
 # Operator Panel - Prediction
 # -------------------
+=======
+
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 =======
 
 >>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
@@ -116,6 +132,7 @@ def operator():
         return abort(403)
 
     result = None
+<<<<<<< HEAD
 <<<<<<< HEAD
     if request.method == 'POST':
         # Read form data
@@ -141,6 +158,8 @@ def operator():
 # Manager Panel - Dashboard
 # -------------------
 =======
+=======
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
     probability = None
 
     if request.method == 'POST':
@@ -209,11 +228,15 @@ def mark_terminated(row_index):
     return 'Invalid Index', 400
 
 
+<<<<<<< HEAD
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
+=======
 >>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 @app.route('/manager')
 def manager():
     if session.get('role') != 'high':
         return abort(403)
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     if not os.path.exists('predictions.csv'):
@@ -230,16 +253,26 @@ def manager():
 
 
 >>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
+=======
+    return render_template('manager.html', data="<p class='text-center text-muted'>Tableau Dashboard Embedded Here</p>")
+
+
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # -------------------
 # App Runner
 # -------------------
 if __name__ == "__main__":
+=======
+
+if __name__ == '__main__':
+>>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
 =======
 
 if __name__ == '__main__':

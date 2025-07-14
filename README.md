@@ -17,7 +17,6 @@ A web-based application that uses a machine learning model to detect fraudulent 
 - [Installation](#-installation)
 - [Usage](#-usage)
 - [Project Structure](#-project-structure)
-- [License](#-license)
 
 ---
 

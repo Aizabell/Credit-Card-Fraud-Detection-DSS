@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 data/fraudTest.csv.zip
 data/fraudTrain.csv.zip
 data/fraudTest.csv
@@ -13,11 +11,7 @@ report/AIT_logo.webp
 report/AIT-white-logo.svg
 report/CPFinal-Doc.docx
 slide/
-=======
+
 fraudTest.csv
 fraudTrain.csv
->>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
-=======
-fraudTest.csv
-fraudTrain.csv
->>>>>>> ce7b6803acf5d6e63ac6bdba42ce8b533b03aebc
+
